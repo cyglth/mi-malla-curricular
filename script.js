@@ -1,4 +1,20 @@
-// Datos de la malla curricular (completa con TODOS los semestres de tu imagen)
+// PRERREQUISITOS: { "materia": ["prerrequisito1", "prerrequisito2"] }
+const prerrequisitos = {
+    "Inglés Técnico II": ["Inglés Técnico I"],
+    "Química Orgánica II": ["Química Orgánica I"],
+    "Farmacognosia II": ["Farmacognosia I"],
+    "Prasitología II": ["Parasitología I"],
+    "Bioquímica II": ["Bioquímica I"],
+    "Farmacología II": ["Farmacología I"],
+    "Hematología II": ["Hematología I"],
+    "Microbiología II": ["Microbiología I"],
+    "Toxicología II": ["Toxicología I"],
+    "Tecnología Farmacéutica II": ["Tecnología Farmacéutica I"],
+    "Medicamentos II": ["Medicamentos I"],
+    "Análisis Clínico II": ["Análisis Clínico I"],
+    
+};
+// Datos de la malla curricular 
 const malla = {
     "PRIMER SEMESTRE": ["Matemática", "Física", "Química General", "Biología", "Expresión Oral y Escrita", "Inglés Técnico I"],
     "SEGUNDO SEMESTRE": ["Química Inorgánica", "Química Orgánica I", "Botánica", "Anatomía Humana", "Estadística", "Inglés Técnico II"],
@@ -38,21 +54,43 @@ for (const [semestre, materias] of Object.entries(malla)) {
 // Función para cambiar y guardar el estado de la materia
 function cambiarEstado(elemento) {
     const materia = elemento.textContent;
-    let estadoActual = elemento.className.split(' ')[1]; // Obtener la segunda clase (ej: "no-cursada")
-    
-    // Ciclo de estados: no-cursada -> cursando -> aprobada -> no-cursada...
+    let estadoActual = elemento.className.split(' ')[1];
+
+    // Cambiar estado de la materia clickeada
     if (estadoActual === "no-cursada") {
         elemento.classList.replace("no-cursada", "cursando");
         estadoActual = "cursando";
     } else if (estadoActual === "cursando") {
         elemento.classList.replace("cursando", "aprobada");
         estadoActual = "aprobada";
+        // Verificar si esta materia desbloquea otras
+        desbloquearMateriasDependientes(materia);
     } else {
         elemento.classList.replace("aprobada", "no-cursada");
         estadoActual = "no-cursada";
     }
-    
+
     // Guardar en localStorage
     estadoMaterias[materia] = estadoActual;
     localStorage.setItem('estadoMaterias', JSON.stringify(estadoMaterias));
+}
+
+// Función para desbloquear materias que dependen de una materia aprobada
+function desbloquearMateriasDependientes(materiaAprobada) {
+    for (const [materia, requisitos] of Object.entries(prerrequisitos)) {
+        if (requisitos.includes(materiaAprobada)) {
+            // Verificar si TODOS los prerrequisitos están aprobados
+            const todosRequisitosCumplidos = requisitos.every(req => estadoMaterias[req] === "aprobada");
+            if (todosRequisitosCumplidos) {
+                // Buscar el elemento en la malla y cambiar su clase
+                document.querySelectorAll('.materia').forEach(el => {
+                    if (el.textContent === materia && el.classList.contains("no-cursada")) {
+                        el.classList.replace("no-cursada", "habilitada");
+                        estadoMaterias[materia] = "habilitada";
+                        localStorage.setItem('estadoMaterias', JSON.stringify(estadoMaterias));
+                    }
+                });
+            }
+        }
+    }
 }
