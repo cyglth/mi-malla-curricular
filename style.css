@@ -36,3 +36,7 @@ h1, h2 {
 .aprobada {
     background-color: #ffb6c1; /* Rosado */
 }
+.habilitada {
+    background-color: #b49eb8; /* Lila */
+    cursor: pointer;
+}
