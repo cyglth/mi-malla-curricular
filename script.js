@@ -1,3 +1,25 @@
+//Materias
+materias.forEach(materia => {
+    const materiaSpan = document.createElement("span");
+    let claseInicial = estadoMaterias[materia] || "no-cursada";
+    
+    // Si la materia tiene prerrequisitos, verificar si están cumplidos
+    if (prerrequisitos[materia]) {
+        const todosRequisitosCumplidos = prerrequisitos[materia].every(req => estadoMaterias[req] === "aprobada");
+        if (todosRequisitosCumplidos && claseInicial === "no-cursada") {
+            claseInicial = "habilitada";
+        }
+    }
+    
+    materiaSpan.className = `materia ${claseInicial}`;
+    materiaSpan.textContent = materia;
+    materiaSpan.onclick = function() {
+        if (!this.classList.contains("no-cursada")) {
+            cambiarEstado(this);
+        }
+    };
+    semestreDiv.appendChild(materiaSpan);
+});
 // PRERREQUISITOS: { "materia": ["prerrequisito1", "prerrequisito2"] }
 const prerrequisitos = {
     "Inglés Técnico II": ["Inglés Técnico I"],
